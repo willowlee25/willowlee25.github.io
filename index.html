@@ -31,10 +31,10 @@
             transition: all 0.3s ease;
         }
 
-        /* 语言控制逻辑 */
+        /* 语言控制逻辑 - 修复初始显示问题 */
         .lang-zh { display: none; }
-        body.zh-mode .lang-zh { display: inline-block; }
-        body.zh-mode .lang-en { display: none; }
+        .zh-mode .lang-zh { display: inline; }
+        .zh-mode .lang-en { display: none; }
 
         /* 切换按钮样式 */
         #lang-toggle {
@@ -68,9 +68,34 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
 
-        /* 顶部页眉 */
+        /* 顶部页眉 - 新增头像布局 */
         header {
             margin-bottom: var(--section-margin);
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        /* 头像样式 */
+        .avatar-container {
+            flex-shrink: 0;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid var(--primary-color);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .header-content {
+            flex-grow: 1;
         }
 
         .name-title {
@@ -188,21 +213,57 @@
             font-size: 0.9rem;
         }
 
+        /* 打印样式优化 */
         @media print {
             #lang-toggle { display: none; }
             body { background: white; }
-            .cv-wrapper { margin: 0; padding: 20px; box-shadow: none; max-width: 100%; }
+            .cv-wrapper { 
+                margin: 0; 
+                padding: 20px; 
+                box-shadow: none; 
+                max-width: 100%; 
+                width: 100%;
+            }
+            /* 打印时确保颜色正常显示 */
+            .highlight-box {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            /* 打印时头像样式优化 */
+            .avatar-container {
+                border: 2px solid #000;
+            }
         }
 
+        /* 移动端适配优化 */
         @media (max-width: 600px) {
             .cv-wrapper { padding: 30px 20px; }
-            .entry-header { flex-direction: column; }
+            header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            .avatar-container {
+                width: 100px;
+                height: 100px;
+            }
+            .entry-header { flex-direction: column; align-items: flex-start; }
             .entry-date { margin-top: 5px; }
+            .name-title { font-size: 2rem; }
+            h2 { font-size: 1.1rem; }
+            .contact-grid {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+
+        /* 平滑滚动 */
+        html {
+            scroll-behavior: smooth;
         }
     </style>
 </head>
-<body class="en-mode">
-
+<body>
     <button id="lang-toggle" onclick="toggleLanguage()">
         <span class="lang-en">中文 / ZH</span>
         <span class="lang-zh">English / EN</span>
@@ -210,17 +271,24 @@
 
     <div class="cv-wrapper">
         <header>
-            <h1 class="name-title">
-                <span class="lang-en">Junrui Li</span>
-                <span class="lang-zh">李君瑞</span>
-            </h1>
-            <div class="contact-grid">
-                <div class="contact-item">📍 
-                    <span class="lang-en">CUHK, Hong Kong</span>
-                    <span class="lang-zh">香港中文大学 (CUHK)</span>
+            <!-- 新增头像容器 -->
+            <div class="avatar-container">
+                <img src="images/Avatar.PNG" alt="Junrui Li Avatar" class="avatar-img">
+            </div>
+            
+            <div class="header-content">
+                <h1 class="name-title">
+                    <span class="lang-en">Junrui Li</span>
+                    <span class="lang-zh">李君瑞</span>
+                </h1>
+                <div class="contact-grid">
+                    <div class="contact-item">📍 
+                        <span class="lang-en">CUHK, Hong Kong</span>
+                        <span class="lang-zh">香港中文大学 (CUHK)</span>
+                    </div>
+                    <div class="contact-item">📞 (+86) 166 2007 0369</div>
+                    <div class="contact-item">📧 lijunrui2025@139.com</div>
                 </div>
-                <div class="contact-item">📞 (+86) 166 2007 0369</div>
-                <div class="contact-item">📧 lijunrui2025@139.com</div>
             </div>
         </header>
 
@@ -386,17 +454,29 @@
     </div>
 
     <script>
+        // 语言切换函数优化
         function toggleLanguage() {
             const body = document.body;
             body.classList.toggle('zh-mode');
             
             // 更新页面 title
-            if (body.classList.contains('zh-mode')) {
-                document.title = "李君瑞 - 专业简历";
-            } else {
-                document.title = "Junrui Li - Academic CV";
-            }
+            const titleEn = "Junrui Li - Academic CV";
+            const titleZh = "李君瑞 - 专业简历";
+            document.title = body.classList.contains('zh-mode') ? titleZh : titleEn;
+            
+            // 按钮点击反馈
+            const btn = document.getElementById('lang-toggle');
+            btn.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                btn.style.transform = '';
+            }, 100);
         }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 确保初始状态正确
+            document.body.classList.remove('en-mode'); // 移除不必要的类
+        });
     </script>
 </body>
 </html>
